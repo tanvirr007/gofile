@@ -62,6 +62,14 @@ install_jq() {
         elif command -v apt-get &> /dev/null; then
             sudo apt-get update
             sudo apt-get install jq
+        elif command -v yum &> /dev/null; then
+            sudo yum install jq
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install jq
+        elif command -v zypper &> /dev/null; then
+            sudo zypper install jq
+        elif command -v brew &> /dev/null; then
+            brew install jq
         else
             echo -e "${RED}Error: Unsupported package manager.${NC}"
             exit 1
@@ -83,6 +91,14 @@ install_bc() {
         elif command -v apt-get &> /dev/null; then
             sudo apt-get update
             sudo apt-get install bc
+        elif command -v yum &> /dev/null; then
+            sudo yum install bc
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install bc
+        elif command -v zypper &> /dev/null; then
+            sudo zypper install bc
+        elif command -v brew &> /dev/null; then
+            brew install bc
         else
             echo -e "${RED}Error: Unsupported package manager.${NC}"
             exit 1
