@@ -2,8 +2,8 @@
 
 RED='\033[1;31m'
 GREEN='\033[1;32m'
-YELLOW='\033[1;33m'
 CYAN='\033[1;36m'
+YELLOW='\033[1;33m'
 NC='\033[0m'
 
 display_usage() {
@@ -38,30 +38,6 @@ display_usage() {
     echo ""
 }
 
-if [[ "$#" == '0' ]]; then
-    echo -e "${RED}Error: No files specified.${NC}"
-    display_usage
-    exit 1
-fi
-
-if ! command -v jq &> /dev/null; then
-    echo -e "${RED}Error: jq is not installed.${NC}"
-    echo -e "${CYAN}Install jq using your package manager:${NC}"
-    echo -e "${GREEN}sudo apt install jq${NC} (for Debian/Ubuntu)"
-    echo -e "${GREEN}sudo pacman -S jq${NC} (for Arch Linux)"
-    exit 1
-fi
-
-echo -e "${CYAN}Querying GoFile for the best server...${NC}"
-SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
-
-if [[ -z "$SERVER" || "$SERVER" == "null" ]]; then
-    echo -e "${RED}Error: Could not retrieve GoFile server information.${NC}"
-    exit 1
-fi
-
-echo -e "${GREEN}Using server:${NC} ${YELLOW}${SERVER}${NC}"
-
 human_readable_size() {
     local size=$1
     if [ "$size" -lt 1024 ]; then
@@ -75,14 +51,39 @@ human_readable_size() {
     fi
 }
 
+if [[ "$#" -eq 0 ]]; then
+    display_usage
+    exit 1
+fi
+
+if ! command -v jq &> /dev/null; then
+    echo -e "${RED}Error: jq is not installed.${NC}"
+    echo -e "${CYAN}Install jq using your package manager.${NC}"
+    exit 1
+fi
+
+SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
+if [[ -z "$SERVER" || "$SERVER" == "null" ]]; then
+    echo -e "${RED}Error: Could not retrieve GoFile server information.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}Using server:${NC} ${YELLOW}${SERVER}${NC}"
+
 success_count=0
-error_count=0
 total_files=$#
+file_number=0
+
+is_multiple_files=false
+if [[ "$total_files" -gt 1 ]]; then
+    is_multiple_files=true
+fi
 
 for file in "$@"; do
+    file_number=$((file_number + 1))
+
     if [ ! -f "$file" ]; then
-        echo -e "${RED}Error: File $file not found!${NC}"
-        error_count=$((error_count + 1))
+        echo -e "${RED}Error - File \"$file\" not found! Skipping...${NC}"
         continue
     fi
 
@@ -90,29 +91,29 @@ for file in "$@"; do
     filesize=$(stat -c %s "$file")
     human_size=$(human_readable_size $filesize)
     extension="${filename##*.}"
+    md5sum=$(md5sum "$file" | awk '{ print $1 }')
 
-    echo -e "Uploading ${YELLOW}$filename${NC} (${CYAN}$human_size${NC})..."
+    if $is_multiple_files; then
+        echo -e "• ${YELLOW}$file_number: Uploading Your file $filename${NC}"
+    else
+        echo -e "Uploading Your file $filename"
+    fi
 
     response=$(curl -# -F "file=@$file" "https://${SERVER}.gofile.io/uploadFile")
+
     if echo "$response" | grep -q '"status":"ok"'; then
         download_link=$(echo "$response" | jq -r '.data.downloadPage')
-        md5sum=$(md5sum "$file" | awk '{ print $1 }')
-        echo -e "${GREEN}Upload successful!${NC}"
-        echo -e "${CYAN}Name:${NC} ${YELLOW}$filename${NC}"
-        echo -e "${CYAN}File size:${NC} ${YELLOW}$human_size${NC}"
-        echo -e "${CYAN}File type:${NC} ${YELLOW}$extension${NC}"
-        echo -e "${CYAN}Md5sum:${NC} ${YELLOW}$md5sum${NC}"
-        echo -e "${CYAN}File URL:${NC} ${GREEN}$download_link${NC}"
+        echo ""
+        echo -e "${GREEN}Name:${NC} ${CYAN}$filename${NC}"
+        echo -e "${GREEN}File size:${NC} ${CYAN}$human_size${NC}"
+        echo -e "${GREEN}File type:${NC} ${CYAN}$extension${NC}"
+        echo -e "${GREEN}Md5sum:${NC} ${CYAN}$md5sum${NC}"
+        echo -e "${GREEN}File URL:${NC} ${YELLOW}$download_link${NC}"
         success_count=$((success_count + 1))
     else
         echo -e "${RED}Error: Failed to upload $filename${NC}"
-        error_count=$((error_count + 1))
     fi
     echo ""
 done
 
-echo -e "${YELLOW}Upload Summary:${NC}"
-echo -e "${GREEN}$success_count files uploaded successfully.${NC}"
-if [ "$error_count" -gt 0 ]; then
-    echo -e "${RED}$error_count files failed to upload.${NC}"
-fi
+echo -e "${CYAN}Upload Status:${NC} ${GREEN}$success_count of $total_files files uploaded successfully.${NC}"
