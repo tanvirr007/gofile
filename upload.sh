@@ -51,6 +51,59 @@ human_readable_size() {
     fi
 }
 
+install_jq() {
+    echo -e "${CYAN}jq is required for JSON parsing.${NC}"
+    read -p "Do you want to install jq now? (y/n): " install_jq
+    if [ "$install_jq" = "y" ] || [ "$install_jq" = "Y" ]; then
+        if command -v pacman &> /dev/null; then
+            sudo pacman -S jq
+        elif command -v apt-get &> /dev/null; then
+            sudo apt-get update
+            sudo apt-get install jq
+        else
+            echo -e "${RED}Error: Unsupported package manager.${NC}"
+            exit 1
+        fi
+    else
+        echo -e "${RED}Exiting script as jq is required.${NC}"
+        exit 1
+    fi
+}
+
+install_bc() {
+    echo -e "${CYAN}bc (Basic Calculator) is required for size calculations.${NC}"
+    read -p "Do you want to install bc now? (y/n): " install_bc
+    if [ "$install_bc" = "y" ] || [ "$install_bc" = "Y" ]; then
+        if command -v pacman &> /dev/null; then
+            sudo pacman -S bc
+        elif command -v apt-get &> /dev/null; then
+            sudo apt-get update
+            sudo apt-get install bc
+        else
+            echo -e "${RED}Error: Unsupported package manager.${NC}"
+            exit 1
+        fi
+    else
+        echo -e "${RED}Exiting script as bc is required.${NC}"
+        exit 1
+    fi
+}
+
+check_jq_installation() {
+    if ! command -v jq &> /dev/null; then
+        install_jq
+    fi
+}
+
+check_bc_installation() {
+    if ! command -v bc &> /dev/null; then
+        install_bc
+    fi
+}
+
+check_jq_installation
+check_bc_installation
+
 if [[ "$#" -eq 0 ]]; then
     display_usage
     exit 1
