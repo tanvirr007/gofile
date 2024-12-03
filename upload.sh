@@ -167,9 +167,9 @@ for file in "$@"; do
     md5sum=$(md5sum "$file" | awk '{ print $1 }')
 
     if $is_multiple_files; then
-        echo -e "• ${YELLOW}$file_number: Uploading Your file $filename${NC}"
+        echo -e "• ${YELLOW}$file_number:${NC} Uploading Your file ${YELLOW}$filename${NC}"
     else
-        echo -e "Uploading Your file $filename"
+        echo -e "Uploading Your file ${YELLOW}$filename${NC}"
     fi
 
     response=$(curl -# -F "file=@$file" "https://${SERVER}.gofile.io/uploadFile")
