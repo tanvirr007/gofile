@@ -55,7 +55,9 @@ install_jq() {
     echo -e "${CYAN}jq is required for JSON parsing.${NC}"
     read -p "Do you want to install jq now? (y/n): " install_jq
     if [ "$install_jq" = "y" ] || [ "$install_jq" = "Y" ]; then
-        if command -v pacman &> /dev/null; then
+        if command -v pkg &> /dev/null; then
+            pkg install jq
+        elif command -v pacman &> /dev/null; then
             sudo pacman -S jq
         elif command -v apt-get &> /dev/null; then
             sudo apt-get update
@@ -74,7 +76,9 @@ install_bc() {
     echo -e "${CYAN}bc (Basic Calculator) is required for size calculations.${NC}"
     read -p "Do you want to install bc now? (y/n): " install_bc
     if [ "$install_bc" = "y" ] || [ "$install_bc" = "Y" ]; then
-        if command -v pacman &> /dev/null; then
+        if command -v pkg &> /dev/null; then
+            pkg install bc
+        elif command -v pacman &> /dev/null; then
             sudo pacman -S bc
         elif command -v apt-get &> /dev/null; then
             sudo apt-get update
