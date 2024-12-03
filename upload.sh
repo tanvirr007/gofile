@@ -6,9 +6,41 @@ YELLOW='\033[1;33m'
 CYAN='\033[1;36m'
 NC='\033[0m'
 
+display_usage() {
+    echo -e "${YELLOW}Usage Instructions for Linux Environment:${NC}"
+    echo ""
+    echo -e "${CYAN}To make the script globally available, run the following commands in your terminal:${NC}"
+    echo -e "   ${GREEN}sudo wget https://raw.githubusercontent.com/tanvirr007/scripts/main/scripts/gofile.sh -O \"/usr/local/bin/gofile\"${NC}"
+    echo -e "   ${GREEN}sudo chmod +x /usr/local/bin/gofile${NC}"
+    echo ""
+    echo -e "${CYAN}To uninstall gofile, you can run:${NC}"
+    echo -e "   ${GREEN}sudo rm \"/usr/local/bin/gofile\"${NC}"
+    echo ""
+    echo -e "${YELLOW}Usage Instructions for Termux:${NC}"
+    echo ""
+    echo -e "${CYAN}1.${NC} Download this script using wget:"
+    echo -e "   ${GREEN}wget https://raw.githubusercontent.com/tanvirr007/scripts/main/scripts/gofile.sh -O \"/data/data/com.termux/files/usr/bin/gofile\" && chmod +x \"/data/data/com.termux/files/usr/bin/gofile\"${NC}"
+    echo ""
+    echo -e "${CYAN}To uninstall gofile from Termux, you can run:${NC}"
+    echo -e "   ${GREEN}rm \"/data/data/com.termux/files/usr/bin/gofile\"${NC}"
+    echo ""
+    echo -e "${YELLOW}How to Upload Files:${NC}"
+    echo ""
+    echo -e "${CYAN}1.${NC} Run the script with the file(s) you want to upload:"
+    echo -e "   ${GREEN}gofile <your_filename>${NC}"
+    echo ""
+    echo -e "${CYAN}2.${NC} You can upload multiple files by specifying their names separated by spaces:${NC}"
+    echo -e "   ${GREEN}gofile <file1> <file2> <file3>${NC}"
+    echo ""
+    echo -e "${CYAN}3.${NC} If you have long filenames, you can use wildcards like:${NC}"
+    echo -e "   ${GREEN}gofile So*.zip${NC}"
+    echo -e "   ${GREEN}gofile Something*.zip${NC}"
+    echo ""
+}
+
 if [[ "$#" == '0' ]]; then
     echo -e "${RED}Error: No files specified.${NC}"
-    echo -e "${CYAN}Usage:${NC} ${GREEN}$0 <file1> <file2> ...${NC}"
+    display_usage
     exit 1
 fi
 
