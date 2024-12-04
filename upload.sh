@@ -157,7 +157,7 @@ for file in "$@"; do
     fi
 
     filename=$(basename "$file")
-    filesize=$(stat -c %s "$file")
+    filesize=$(wc -c < "$file")
     human_size=$(human_readable_size $filesize)
     extension="${filename##*.}"
     md5sum=$(md5sum "$file" | awk '{ print $1 }')
