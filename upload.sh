@@ -109,20 +109,16 @@ install_bc() {
     fi
 }
 
-check_jq_installation() {
+check_dependencies() {
     if ! command -v jq &> /dev/null; then
         install_jq
     fi
-}
-
-check_bc_installation() {
     if ! command -v bc &> /dev/null; then
         install_bc
     fi
 }
 
-check_jq_installation
-check_bc_installation
+check_dependencies
 
 if [[ "$#" -eq 0 ]]; then
     display_usage
