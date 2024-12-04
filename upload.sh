@@ -131,7 +131,7 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
-SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
+SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers | map(.name) | .[]' | shuf -n 1)
 if [[ -z "$SERVER" || "$SERVER" == "null" ]]; then
     echo -e "${RED}Error: Could not retrieve GoFile server information.${NC}"
     exit 1
